@@ -1,0 +1,172 @@
+# GRADIENTE DESCENDENTE ESTOCÁSTICO (SGD) - FUNÇÃO RASTRIGIN
+
+import numpy as np
+import matplotlib.pyplot as plt
+import time
+
+tempo_inicio = time.time()
+# Função Rastrigin
+def f(x, y, A=10):
+    return (2 * A
+            + (x**2 - A * np.cos(2 * np.pi * x))
+            + (y**2 - A * np.cos(2 * np.pi * y)))
+
+# Gradiente numérico
+def derivada_central_x(f, x, y, h=1e-5):
+    return (f(x + h, y) - f(x - h, y)) / (2 * h)
+
+def derivada_central_y(f, x, y, h=1e-5):
+    return (f(x, y + h) - f(x, y - h)) / (2 * h)
+
+# NOVO: Função para adicionar ruído estocástico ao gradiente
+def gradiente_estocastico(f, x, y, noise_level=0.1):
+
+    gx = derivada_central_x(f, x, y)
+    gy = derivada_central_y(f, x, y)
+
+    # Adiciona ruído gaussiano (simula amostragem de mini-batch)
+    gx += np.random.normal(0, noise_level * abs(gx) + 0.01)
+    gy += np.random.normal(0, noise_level * abs(gy) + 0.01)
+
+    return gx, gy
+
+# PARÂMETROS
+alpha_inicial = 0.0001
+max_iter = 10000
+tolerancia = 1e-6
+num_pontos = 1000
+intervalo = 5.12
+
+# NOVOS PARÂMETROS SGD (Novo)
+sgd_noise_level = 0.3  # Nível de ruído
+sgd_decay = 0.9995     # Decaimento do ruído ao longo do tempo
+
+melhor_valor = float("inf")
+melhor_x = None
+melhor_y = None
+melhor_historico_x = None
+melhor_historico_y = None
+melhor_historico_f = None
+
+print("\nEXECUTANDO",num_pontos,"INICIALIZAÇÕES ALEATÓRIAS (SGD)...")
+print("-" * 50)
+
+# COORDENADAS ALEATORIAS
+for ponto in range(num_pontos):
+
+    # Ponto inicial aleatório
+    x_atual = np.random.uniform(-intervalo, intervalo)
+    y_atual = np.random.uniform(-intervalo, intervalo)
+
+    alpha = alpha_inicial
+    f_atual = f(x_atual, y_atual)
+
+    historico_x = [x_atual]
+    historico_y = [y_atual]
+    historico_f = [f_atual]
+
+    # NOVO: Controle de ruído para SGD
+    noise_level = sgd_noise_level
+
+    # LOOP PRINCIPAL (modificado para SGD)
+    for i in range(max_iter):
+
+        # Muda para gradiente estocástico (com ruído)
+        gx, gy = gradiente_estocastico(f, x_atual, y_atual, noise_level)
+
+        # Atualização SGD (igual ao GD)
+        x_novo = x_atual - alpha * gx
+        y_novo = y_atual - alpha * gy
+
+        f_novo = f(x_novo, y_novo)
+
+        # Critério de aceitação (preservado)
+        if f_novo < f_atual:
+            x_atual, y_atual = x_novo, y_novo
+            f_atual = f_novo
+
+            historico_x.append(x_atual)
+            historico_y.append(y_atual)
+            historico_f.append(f_atual)
+
+            # NOVO: Reduz ruído gradualmente (annealing)
+            noise_level *= sgd_decay
+
+            if len(historico_f) > 1 and abs(historico_f[-1] - historico_f[-2]) < tolerancia:
+                break
+        else:
+            alpha *= 0.99  # reduz 1% se passo ruim
+
+            # NOVO: Aumenta ruído temporariamente para escapar de mínimos locais
+            if np.random.random() < 0.1:  # 10% de chance
+                noise_level = min(noise_level * 1.5, sgd_noise_level)
+
+    # Atualiza melhor mínimo global
+    if f_atual < melhor_valor:
+        melhor_valor = f_atual
+        melhor_x = x_atual
+        melhor_y = y_atual
+        melhor_historico_x = historico_x.copy()
+        melhor_historico_y = historico_y.copy()
+        melhor_historico_f = historico_f.copy()
+
+# RESULTADO FINAL
+print("-" * 50)
+print("MELHOR MÍNIMO ENCONTRADO (SGD)")
+print(f"x* = {melhor_x:.8f}")
+print(f"y* = {melhor_y:.8f}")
+print(f"f(x*,y*) = {melhor_valor:.10f}")
+print(f"- Ruído inicial: {sgd_noise_level}")
+print(f"- Decaimento do ruído: {sgd_decay}")
+
+tempo_fim = time.time()
+tempo_decorrido = tempo_fim - tempo_inicio
+
+print(f"\n⏱️  Tempo total de execução: {tempo_decorrido:.2f} segundos")
+
+# GRÁFICOS (preservados)
+historico_x = np.array(melhor_historico_x)
+historico_y = np.array(melhor_historico_y)
+historico_f = np.array(melhor_historico_f)
+
+margem = intervalo
+x_grid = np.linspace(-margem, margem, 1000)
+y_grid = np.linspace(-margem, margem, 1000)
+X, Y = np.meshgrid(x_grid, y_grid)
+Z = f(X, Y)
+
+fig = plt.figure(figsize=(18, 5))
+
+# Superfície 3D
+ax1 = fig.add_subplot(131, projection="3d")
+ax1.plot_surface(X, Y, Z, cmap="viridis", alpha=0.6)
+ax1.plot(historico_x, historico_y, historico_f, color="red", linewidth=2)
+ax1.set_title("SGD - Superfície 3D")
+
+# Contorno
+ax2 = fig.add_subplot(132)
+cp = ax2.contourf(X, Y, Z, levels=40, cmap="viridis")
+fig.colorbar(cp, ax=ax2)
+ax2.plot(historico_x, historico_y, color="red", linewidth=2, marker='.', markersize=3)
+ax2.set_title("SGD - Mapa de Contorno")
+
+# Convergência
+ax3 = fig.add_subplot(133)
+ax3.plot(historico_f, linewidth=2)
+ax3.set_title("SGD - Convergência de f")
+ax3.set_xlabel("Iteração")
+ax3.set_ylabel("f(x,y)")
+ax3.grid(True)
+ax3.set_yscale('log')  # NOVO: escala log para melhor visualização
+
+plt.tight_layout()
+plt.savefig("grafico_rastrigin_sgd.png")
+plt.show()
+
+# Caractersiticas do SGD
+print("\nGradiente Descendente Estocastico (SGD):")
+print("- Gradiente com ruído controlado")
+print("- Maior chance de encontrar mínimo global")
+print("- Trajetória mais errática mas exploratória")
+
+
