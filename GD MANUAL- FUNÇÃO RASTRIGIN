@@ -1,0 +1,120 @@
+# GD MANUAL- FUNÇÃO RASTRIGIN
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Função Rastrigin
+def f(x, y, A=10):
+    return (2 * A
+            + (x**2 - A * np.cos(2 * np.pi * x))
+            + (y**2 - A * np.cos(2 * np.pi * y)))
+
+# Gradiente numérico
+def derivada_central_x(f, x, y, h=1e-5):
+    return (f(x + h, y) - f(x - h, y)) / (2 * h)
+
+
+def derivada_central_y(f, x, y, h=1e-5):
+    return (f(x, y + h) - f(x, y - h)) / (2 * h)
+
+
+# Parâmetros iniciais
+x0 = float(input("Ponto inicial x0: "))
+y0 = float(input("Ponto inicial y0: "))
+
+alpha = 0.01
+max_iter = 5000
+tolerancia = 1e-6
+
+# Inicialização
+x_atual, y_atual = x0, y0
+f_atual = f(x_atual, y_atual)
+
+historico_x = [x_atual]
+historico_y = [y_atual]
+historico_f = [f_atual]
+historico_alpha = [alpha]
+
+print("\nEXECUTANDO...")
+print("-" * 40)
+
+
+# LOOP PRINCIPAL
+for i in range(max_iter):
+
+    # Calcula gradiente
+    gx = derivada_central_x(f, x_atual, y_atual)
+    gy = derivada_central_y(f, x_atual, y_atual)
+
+    # Propõe novo ponto
+    x_novo = x_atual - alpha * gx
+    y_novo = y_atual - alpha * gy
+
+    f_novo = f(x_novo, y_novo)
+
+    # VERIFICA SE O PASSO FOI BOM
+    if f_novo < f_atual:
+        # Passo aceito
+        x_atual, y_atual = x_novo, y_novo
+        f_atual = f_novo
+
+        historico_x.append(x_atual)
+        historico_y.append(y_atual)
+        historico_f.append(f_atual)
+        historico_alpha.append(alpha)
+
+        # Critério de parada
+        if abs(historico_f[-1] - historico_f[-2]) < tolerancia:
+            print(f"Convergência na iteração {i}")
+            break
+
+    else:
+        # Passo ruim → reduz alpha em 1%
+        alpha = alpha * 0.99
+
+    if i % 200 == 0:
+        print(f"Iter {i:4d} | f={f_atual:.6f} | α={alpha:.6f}")
+
+
+print("-" * 40)
+print("RESULTADO FINAL")
+print(f"x* = {x_atual:.6f}")
+print(f"y* = {y_atual:.6f}")
+print(f"f(x*,y*) = {f_atual:.6f}")
+
+# GRÁFICOS
+historico_x = np.array(historico_x)
+historico_y = np.array(historico_y)
+historico_f = np.array(historico_f)
+
+margem = max(abs(x0), abs(y0), 1.0) * 1.5
+x_grid = np.linspace(-margem, margem, 300)
+y_grid = np.linspace(-margem, margem, 300)
+X, Y = np.meshgrid(x_grid, y_grid)
+Z = f(X, Y)
+
+fig = plt.figure(figsize=(18, 5))
+
+# Superfície 3D
+ax1 = fig.add_subplot(131, projection="3d")
+ax1.plot_surface(X, Y, Z, cmap="viridis", alpha=0.6)
+ax1.plot(historico_x, historico_y, historico_f, color="red")
+ax1.set_title("Superfície 3D")
+
+# Contorno
+ax2 = fig.add_subplot(132)
+cp = ax2.contourf(X, Y, Z, levels=40, cmap="viridis")
+fig.colorbar(cp, ax=ax2)
+ax2.plot(historico_x, historico_y, color="red")
+ax2.set_title("Mapa de Contorno")
+
+# Convergência
+ax3 = fig.add_subplot(133)
+ax3.plot(historico_f)
+ax3.set_title("Convergência de f")
+ax3.set_xlabel("Iteração")
+ax3.set_ylabel("f(x,y)")
+ax3.grid(True)
+
+plt.tight_layout()
+plt.show()
