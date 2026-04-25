@@ -1,0 +1,75 @@
+# ALGORITMO DE GRADIENTE DESCENDENTE PARA DUAS VARIÁVEIS COM TAXA DE APRENDIZADO ADAPTATIVA
+
+# FUNÇÃO: 
+def f(x, y):
+    return x**4 - 2*x**2 + y**4 - 2*y**2
+
+# DERIVADAS PARCIAIS
+def df_dx(x, y):
+    return 4*x**3 - 4*x
+
+def df_dy(x, y):
+    return 4*y**3 - 4*y
+
+# Ponto inicial
+x = float(input("Digite o ponto inicial x0: "))
+y = float(input("Digite o ponto inicial y0: "))
+
+# Taxa de aprendizado inicial
+alpha = 10.0
+
+# Tolerância
+tolerancia = 0.0001
+
+# Inicialização
+f_anterior = f(x, y)
+iteracao = 0
+max_iter = 1000000000
+
+print("\nEXECUTANDO...")
+print("-" * 75)
+print(f"{'Iterações':<8} {'alpha':<18} {'x':<14} {'y':<10} {'f(x,y)':<12}")
+print("-" * 75)
+
+# Laço principal
+while iteracao < max_iter:
+    iteracao += 1
+
+    # Calcula o gradiente no ponto atual
+    grad_x = df_dx(x, y)
+    grad_y = df_dy(x, y)
+
+    # Guarda o ponto atual 
+    x_antigo, y_antigo = x, y
+
+    # Passo de tentativa
+    x_novo = x - alpha * grad_x
+    y_novo = y - alpha * grad_y
+
+    # Verifica se houve melhora
+    if f(x_novo, y_novo) < f(x, y):
+        # Passo bom: aceita o novo ponto
+        x, y = x_novo, y_novo
+
+        # Mostra progresso 
+        if iteracao % 50 == 0 or iteracao <= 3:
+            print(f"{iteracao:<8} {alpha:<16.6f} {x:<12.6f} {y:<12.6f} {f(x, y):<12.6f}")
+
+        # Critério de parada
+        if abs(f(x, y) - f_anterior) <= tolerancia:
+            break
+
+        f_anterior = f(x, y)
+
+    else:
+        # Passo ruim: 
+        alpha = alpha / 1.01
+        x, y = x_antigo, y_antigo
+
+print("-" * 75)
+print("\nRESULTADO FINAL")
+print(f"x* = {x:.6f}")
+print(f"y* = {y:.6f}")
+print(f"f(x*,y*) = {f(x, y):.6f}")
+print(f"Iterações: {iteracao}")
+print(f"Taxa de aprendizado final: {alpha:.6f}")
