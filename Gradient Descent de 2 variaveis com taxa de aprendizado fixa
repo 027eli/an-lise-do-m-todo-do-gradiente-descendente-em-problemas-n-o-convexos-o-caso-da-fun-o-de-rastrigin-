@@ -1,0 +1,58 @@
+# Gradient Descent de 2 variaveis com taxa de aprendizado fixa 
+
+print("GRADIENTE DESCENDENTE - 2 VARIÁVEIS")
+print("-" * 40)
+
+# Função: 
+def f(x, y):
+    return x**2 + y**2 + 2*x*y
+
+# Derivadas Parciais 
+def df_dx(x, y):
+    return 2*x
+
+def df_dy(x, y):
+    return 2*y
+
+# Parametros
+x0 = float(input("Ponto inicial x0: "))
+y0 = float(input("Ponto inicial y0: "))
+alpha = 0.1  
+max_iter = 10000000
+tolerancia = 0.0000001
+
+# Inicialização
+x_atual, y_atual = x0, y0
+f_anterior = float('inf')
+
+print("\nEXECUTANDO...")
+print("-" * 40)
+
+# Loop principal
+for i in range(max_iter):
+    f_atual = f(x_atual, y_atual)
+
+    # Critério de parada
+    if abs(f_atual - f_anterior) < tolerancia:
+        print(f"Convergência na iteração {i}")
+        break
+
+    # Calculo de gradiente
+    gx = df_dx(x_atual, y_atual)
+    gy = df_dy(x_atual, y_atual)
+
+    # Atualiza posição 
+    x_atual -= alpha * gx
+    y_atual -= alpha * gy
+
+    f_anterior = f_atual
+
+    # Mostra progresso
+    if i % 10 == 0:
+        print(f"Iteração {i:3d}: x={x_atual:.4f}, y={y_atual:.4f}, f={f_atual:.4f}")
+
+print("-" * 40)
+print("RESULTADO FINAL")
+print(f"x* = {x_atual:.6f}")
+print(f"y* = {y_atual:.6f}")
+print(f"f(x*,y*) = {f(x_atual, y_atual):.6f}")
