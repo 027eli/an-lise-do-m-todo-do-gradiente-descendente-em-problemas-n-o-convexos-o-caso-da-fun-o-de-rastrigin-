@@ -1,0 +1,64 @@
+# ALGORITMO DE GRADIENTE DESCENDENTE UNIDIMENSIONAL  COM TAXA DE APRENDIZADO ADAPTATIVA 
+
+def f(x):
+    return x**4 - 2*x**2 
+
+def df(x):
+    return 4*x**3 - 4*x
+
+# Ponto inicial
+x = float(input("Digite o ponto inicial x0: "))
+
+# Taxa de aprendizado inicial
+alpha = 1
+
+# Tolerância
+tolerancia = 0.0001
+
+# Inicialização
+fx_anterior = f(x)
+iteracao = 0
+max_iter = 10000
+
+# Laço principal
+while iteracao < max_iter:
+
+    iteracao += 1
+
+    # Calcula o gradiente no ponto atual
+    gradiente = df(x)
+
+    # Guarda o ponto atual (para possível retorno)
+    x_antigo = x
+
+    # Passo de tentativa
+    x_novo = x - alpha * gradiente
+
+    # Verifica se houve melhora
+    if f(x_novo) < f(x):
+        # Passo bom: aceita o novo ponto
+        x = x_novo
+        print(
+            f"Iteração {iteracao}: "
+            f"alpha = {alpha:.6f}, "
+            f"x = {x:.6f}, "
+            f"f(x) = {f(x):.6f}"
+        )
+
+        # Critério de parada
+        if abs(f(x) - fx_anterior) <= tolerancia:
+            break
+
+        fx_anterior = f(x)
+
+    else:
+        # Passo ruim: rejeita e reduz a taxa de aprendizado
+        alpha = alpha / 2
+        x = x_antigo
+
+# Resultado final
+print("\nProcesso encerrado.")
+print(f"x ≈ {x:.6f}")
+print(f"f(x) ≈ {f(x):.6f}")
+print(f"Iterações: {iteracao}")
+print(f"Taxa de aprendizado final: {alpha:.6f}")
