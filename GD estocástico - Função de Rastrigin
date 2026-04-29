@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import time
 
 tempo_inicio = time.time()
+
 # Função Rastrigin
 def f(x, y, A=10):
     return (2 * A
