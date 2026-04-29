@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 import time
 
 tempo_inicio = time.time()
-
 # Função Rastrigin
 def f(x, y, A=10):
     return (2 * A
@@ -48,6 +47,8 @@ melhor_y = None
 melhor_historico_x = None
 melhor_historico_y = None
 melhor_historico_f = None
+
+todos_f_finais = [] # Inicializa a lista para armazenar os valores finais de f
 
 print("\nEXECUTANDO",num_pontos,"INICIALIZAÇÕES ALEATÓRIAS (SGD)...")
 print("-" * 50)
@@ -102,6 +103,9 @@ for ponto in range(num_pontos):
             if np.random.random() < 0.1:  # 10% de chance
                 noise_level = min(noise_level * 1.5, sgd_noise_level)
 
+    # Adiciona o valor final de f para esta inicialização à lista
+    todos_f_finais.append(f_atual)
+
     # Atualiza melhor mínimo global
     if f_atual < melhor_valor:
         melhor_valor = f_atual
@@ -124,6 +128,15 @@ tempo_fim = time.time()
 tempo_decorrido = tempo_fim - tempo_inicio
 
 print(f"\n⏱️  Tempo total de execução: {tempo_decorrido:.2f} segundos")
+
+# CÁLCULO DO DESVIO PADRÃO E MÉDIA
+todos_f_finais = np.array(todos_f_finais)
+desvio_padrao_f = np.std(todos_f_finais)
+
+print("\n" + "=" * 50)
+print("ESTATÍSTICAS DOS MÍNIMOS ENCONTRADOS")
+print(f"Desvio padrão dos valores finais de f: {desvio_padrao_f:.10f}")
+print("=" * 50)
 
 # GRÁFICOS (preservados)
 historico_x = np.array(melhor_historico_x)
@@ -169,5 +182,3 @@ print("\nGradiente Descendente Estocastico (SGD):")
 print("- Gradiente com ruído controlado")
 print("- Maior chance de encontrar mínimo global")
 print("- Trajetória mais errática mas exploratória")
-
-
