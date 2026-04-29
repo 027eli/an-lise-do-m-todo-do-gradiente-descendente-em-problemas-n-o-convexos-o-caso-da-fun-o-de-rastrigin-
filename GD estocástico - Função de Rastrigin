@@ -36,7 +36,7 @@ alpha_inicial = 0.0001
 max_iter = 10000
 tolerancia = 1e-6
 num_pontos = 1000
-intervalo = 5.12
+intervalo = 100
 
 # NOVOS PARÂMETROS SGD (Novo)
 sgd_noise_level = 0.3  # Nível de ruído
