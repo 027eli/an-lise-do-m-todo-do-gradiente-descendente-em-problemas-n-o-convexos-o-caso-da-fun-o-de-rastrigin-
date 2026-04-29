@@ -34,6 +34,7 @@ melhor_historico_x = None
 melhor_historico_y = None
 melhor_historico_f = None
 
+todos_f_finais = [] # Inicializa a lista para armazenar os valores finais de f
 
 print("\nEXECUTANDO ",num_pontos,"INICIALIZAÇÕES ALEATÓRIAS...")
 print("-" * 50)
@@ -77,6 +78,8 @@ for ponto in range(num_pontos):
 
         else:
             alpha *= 0.99  # reduz 1% se passo ruim
+    
+    todos_f_finais.append(f_atual) # Adiciona o valor final de f para este ponto
 
     # Atualiza melhor mínimo global
     if f_atual < melhor_valor:
@@ -97,6 +100,17 @@ print(f"f(x*,y*) = {melhor_valor:.10f}")
 tempo_fim = time.time()
 tempo_decorrido = tempo_fim - tempo_inicio
 print(f"\n⏱️  Tempo total de execução: {tempo_decorrido:.2f} segundos")
+
+# CÁLCULO DO DESVIO PADRÃO E MÉDIA
+todos_f_finais = np.array(todos_f_finais)
+media_f = np.mean(todos_f_finais)
+desvio_padrao_f = np.std(todos_f_finais)
+
+print("\n" + "=" * 50)
+print("ESTATÍSTICAS DOS MÍNIMOS ENCONTRADOS")
+print(f"Média dos valores finais de f: {media_f:.10f}")
+print(f"Desvio padrão dos valores finais de f: {desvio_padrao_f:.10f}")
+print("=" * 50)
 
 # GRÁFICOS DO MELHOR RESULTADO
 historico_x = np.array(melhor_historico_x)
