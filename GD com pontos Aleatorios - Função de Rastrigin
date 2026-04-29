@@ -24,7 +24,7 @@ alpha_inicial = 0.0001
 max_iter = 10000
 tolerancia = 1e-6
 num_pontos = 1000
-intervalo = 5.12  # domínio clássico da Rastrigin
+intervalo = 100 # domínio clássico da Rastrigin
 
 
 melhor_valor = float("inf")
@@ -103,12 +103,10 @@ print(f"\n⏱️  Tempo total de execução: {tempo_decorrido:.2f} segundos")
 
 # CÁLCULO DO DESVIO PADRÃO E MÉDIA
 todos_f_finais = np.array(todos_f_finais)
-media_f = np.mean(todos_f_finais)
 desvio_padrao_f = np.std(todos_f_finais)
 
 print("\n" + "=" * 50)
 print("ESTATÍSTICAS DOS MÍNIMOS ENCONTRADOS")
-print(f"Média dos valores finais de f: {media_f:.10f}")
 print(f"Desvio padrão dos valores finais de f: {desvio_padrao_f:.10f}")
 print("=" * 50)
 
